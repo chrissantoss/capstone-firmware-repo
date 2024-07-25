@@ -67,6 +67,7 @@ void setup() {
 // }
 
 void loop() {
+  delay(100);
   float coordinates[3];
   if (Serial.available() > 0) {
     // Read the input from the serial as a string
@@ -117,8 +118,10 @@ void loop() {
   }
 
   // update position, maxing at 200 steps per cycle 
-  Serial.println("Curr: %d/n", curr_pos);
-  Serial.println("Exp: %d\n", step_pos);
+  Serial.print("Curr: ");
+  Serial.println(curr_pos);
+  Serial.print("exp: ");
+  Serial.println(step_pos); 
   if (step_pos - curr_pos > 200) {
     digitalWrite(PIN_ENABLE, HIGH);
     curr_pos += 200;
@@ -134,7 +137,6 @@ void loop() {
     digitalWrite(PIN_STEP, LOW);
     delayMicroseconds(1250); // Adjust the speed as needed
   }
-  //delay(1000);
 }
 
 // void moveToX(float x) {
