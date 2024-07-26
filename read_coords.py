@@ -4,7 +4,7 @@ import threading
 import time
 import serial
 
-ser = serial.Serial("/dev/tty.usbmodem141101", 9600)
+ser = serial.Serial("/dev/tty.usbmodem142101", 9600, timeout=1)
 
 
 lock = threading.Lock()
@@ -30,8 +30,8 @@ def read_data():
                 with lock:
                     global x, y, z
                     x, y, z = match.groups()
-                #outstr = f"{x}, {y}, {z}"
-                #print(outstr)
+                # outstr = f"{x}, {y}, {z}"
+                # print(outstr)
             # time.sleep(0.5)
             # process.stdout.flush()
         
@@ -47,19 +47,23 @@ def run_adb_logcat():
 
     reader = threading.Thread(target=read_data)
     reader.start()
+
+    ser.close()
+    ser.open()
     # Start the subprocess
 
     try:
         # Continuously read the output line by line
         while True:
+            #breakpoint()
             # Read a line from stdout
-            print(ser.readline().decode('utf-8').strip())
             with lock:
                 global x, y, z
                 outstr = f"{x}, {y}, {z}"
             print(outstr)
             ser.write(outstr.encode('utf-8'))
             ser.write(b'\n')
+            print(ser.readline().decode('utf-8').strip())
             #breakpoint()
           
     except KeyboardInterrupt:
