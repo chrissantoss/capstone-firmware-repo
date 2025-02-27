@@ -65,10 +65,11 @@ void setup() {
 //     Serial.println(" mm");
 //   }
 // }
+static float coordinates[3] = {0};
+static int step_pos = 0;
 
 void loop() {
-  delay(100);
-  float coordinates[3];
+  //delay(100);
   if (Serial.available() > 0) {
     // Read the input from the serial as a string
     lengthText = Serial.readStringUntil('\n');
@@ -77,8 +78,9 @@ void loop() {
     //   calibrate(oldDist);
     // } else {
       // Parse the string into individual floats
+      
       int index = 0;
-      char *token = strtok((char *)lengthText.c_str(), ", ");
+      char *token = strtok((char *)lengthText.c_str(), ",");
       coordinates[index] = atof(token);
       index++;
       do {
@@ -107,35 +109,39 @@ void loop() {
       // Serial.print(currentX);
       // Serial.println(" mm");
     // }
-  } 
-  int coords = coordinates[2] * 10;
-  int step_pos = coords * 240;
-  Serial.println(step_pos);
-  if (step_pos < 0) {
-    step_pos = 0;
-  } else if (step_pos > 4800) {
-    step_pos = 4800;
-  }
+    int coords = coordinates[2] * 10;
+    step_pos = coords * 240;
+    //Serial.println(step_pos);
+    if (step_pos < 0) {
+      step_pos = 0;
+    } else if (step_pos > 4800) {
+      step_pos = 4800;
+    }
+    else if(step_pos == 0){
+      return;
+    }
 
-  // update position, maxing at 200 steps per cycle 
-  Serial.print("Curr: ");
-  Serial.println(curr_pos);
-  Serial.print("exp: ");
-  Serial.println(step_pos); 
-  if (step_pos - curr_pos > 200) {
-    digitalWrite(PIN_ENABLE, HIGH);
-    curr_pos += 200;
-  } else if (step_pos - curr_pos < -200) {
-    curr_pos -= 200;
-    digitalWrite(PIN_ENABLE, LOW);
-  } else {
-    return;
-  }
-  for (int i = 0; i < 200; i++) {
-    digitalWrite(PIN_STEP, HIGH);
-    delayMicroseconds(1250); // Adjust the speed as needed
-    digitalWrite(PIN_STEP, LOW);
-    delayMicroseconds(1250); // Adjust the speed as needed
+    // update position, maxing at 200 steps per cycle 
+    Serial.print("Curr: ");
+    Serial.println(curr_pos);
+    Serial.print("exp: ");
+    if (curr_pos)
+    Serial.println(step_pos); 
+    if (step_pos - curr_pos > 200) {
+      digitalWrite(PIN_ENABLE, HIGH);
+      curr_pos += 200;
+    } else if (step_pos - curr_pos < -200) {
+      curr_pos -= 200;
+      digitalWrite(PIN_ENABLE, LOW);
+    } else {
+      return;
+    }
+    for (int i = 0; i < 200; i++) {
+      digitalWrite(PIN_STEP, HIGH);
+      delayMicroseconds(1250); // Adjust the speed as needed
+      digitalWrite(PIN_STEP, LOW);
+      delayMicroseconds(1250); // Adjust the speed as needed
+    }
   }
 }
 
